@@ -1,9 +1,10 @@
-"use client"
-import { useState } from 'react'
-import { Link, Menu } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { LogIn, Menu } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Sheet,
   SheetClose,
@@ -13,11 +14,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet"
-
-export default function Header() {
-
-const [isOpen, setIsOpen] = useState(false);
+} from "@/components/ui/sheet";
 
 const navItems = [
   { name: "Sobre", href: "/about" },
@@ -25,72 +22,103 @@ const navItems = [
   { name: "Contato", href: "/contact" },
 ];
 
-const navLinks = () => (
+type HeaderProps = {
+  session?: {
+    user: {
+      name?: string | null;
+    };
+  } | null;
+};
+
+export default function Header({ session = null }: HeaderProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const navLinks = (closeOnClick = false) => (
   <>
     {navItems.map((item) => (
-      <Button
-        key={item.name}
-        asChild
-        className="bg-transparent hover:bg-transparent text-black shadow-none hover:shadow-none"
+      <Link
+        key={item.href}
+        href={item.href}
+        onClick={closeOnClick ? () => setIsOpen(false) : undefined}
+        className="rounded-md px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:text-emerald-600"
       >
-        <Link
-          href={item.href}
-          className="text-sm font-medium text-muted-foreground hover:text-primary"
-        >
-          {item.name}
-        </Link>
-      </Button>
+        {item.name}
+      </Link>
     ))}
+
+    {session ? (
+      <Link
+        href="/dashboard"
+        onClick={closeOnClick ? () => setIsOpen(false) : undefined}
+        className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:text-emerald-600"
+      >
+      <span className="ml-2 rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-800">
+        {session.user.name || "Meu painel"}
+      </span>
+      </Link>
+
+    ) : (
+      <Button
+        render={<Link href="/login" />}
+        nativeButton={false}
+        onClick={closeOnClick ? () => setIsOpen(false) : undefined}
+        className="gap-2 bg-emerald-600 px-4 text-white shadow-sm hover:bg-emerald-700 focus-visible:border-emerald-500 focus-visible:ring-emerald-500/50"
+      >
+        <LogIn className="size-4" aria-hidden="true" />
+        Fazer login
+      </Button>
+    )}
   </>
 );
+
   return (
-    <header className="
-    fixed top-0 right-0 left-0 z-[999] py-4 px-6 bg-white
-    ">
-      <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-        <div className="container flex items-center justify-between">
-          <Link href="/" className="text-3xl font-bold text-zinc-900"
-          >odonto<span className="font-bold text-emerald-500">PRO</span></Link>
-        </div>
+    <header className="fixed inset-x-0 top-0 z-40 border-b border-zinc-200 bg-white">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4 lg:px-8">
+        <Link
+          href="/"
+          aria-label="odontoPRO — Página inicial"
+          className="rounded-md text-3xl font-bold text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+        >
+          odonto<span className="text-emerald-500">PRO</span>
+        </Link>
 
-        <div className="">
-          <nav className="hidden md:flex items-center space-x-4">
-            {navLinks()}
-          </nav>
-          <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild className="md:hidden">
-              <Button onClick={() => setIsOpen(true)}
-              className="text-black hover:bg-transparent"
-              variant="ghost"
-              size="icon"
-              >
-                <Menu className="w-6 h-6" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[400px] z-[9999]">
-              <SheetHeader>
-                <SheetTitle>Menu</SheetTitle>
-                <SheetDescription>
-                  Bem vindo ao odonto
-                  <span className="font-bold text-emerald-500">PRO</span>!
-                  Aqui você pode encontrar informações sobre nossos serviços e entrar em contato conosco.
-                </SheetDescription>
-              </SheetHeader>
-              <nav className="flex flex-col space-y-4 mt-6">
-                {navLinks()}
-              </nav>
-              <SheetFooter className="mt-auto">
-                <SheetClose asChild>
-                  <Button variant="ghost" size="icon">
-                    <Link className="w-6 h-6" />
-                  </Button>
-                </SheetClose>
-              </SheetFooter>
+        <nav aria-label="Navegação principal" className="hidden items-center gap-4 md:flex">
+          {navLinks()}
+        </nav>
 
-            </SheetContent>
-          </Sheet>
-        </div>
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+          <SheetTrigger
+            render={<Button variant="ghost" size="icon" />}
+            aria-label="Abrir menu de navegação"
+            className="text-zinc-900 md:hidden"
+          >
+            <Menu className="size-6" aria-hidden="true" />
+          </SheetTrigger>
+          <SheetContent
+            side="right"
+            showCloseButton={false}
+            className="w-[300px] max-w-full overflow-y-auto sm:w-[400px] sm:max-w-[400px]"
+          >
+            <SheetHeader>
+              <SheetTitle>Menu</SheetTitle>
+              <SheetDescription>
+                Bem-vindo ao odonto
+                <span className="font-bold text-emerald-500">PRO</span>! Aqui você
+                pode encontrar informações sobre nossos serviços e entrar em
+                contato conosco.
+              </SheetDescription>
+            </SheetHeader>
+            <nav aria-label="Navegação móvel" className="flex flex-col gap-2 px-4">
+              {navLinks(true)}
+            </nav>
+            <SheetFooter>
+              <SheetClose render={<Button variant="outline" />}>
+                Fechar menu
+              </SheetClose>
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>
       </div>
     </header>
-  )
+  );
 }
