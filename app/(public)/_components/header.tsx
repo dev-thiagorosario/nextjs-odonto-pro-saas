@@ -34,46 +34,45 @@ export default function Header({ session = null }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = (closeOnClick = false) => (
-  <>
-    {navItems.map((item) => (
-      <Link
-        key={item.href}
-        href={item.href}
-        onClick={closeOnClick ? () => setIsOpen(false) : undefined}
-        className="rounded-md px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:text-emerald-600"
-      >
-        {item.name}
-      </Link>
-    ))}
+    <>
+      {navItems.map((item) => (
+        <Link
+          key={item.href}
+          href={item.href}
+          onClick={closeOnClick ? () => setIsOpen(false) : undefined}
+          className="rounded-md px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:text-emerald-600"
+        >
+          {item.name}
+        </Link>
+      ))}
 
-    {session ? (
-      <Link
-        href="/dashboard"
-        onClick={closeOnClick ? () => setIsOpen(false) : undefined}
-        className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:text-emerald-600"
-      >
-      <span className="ml-2 rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-800">
-        {session.user.name || "Meu painel"}
-      </span>
-      </Link>
-
-    ) : (
-      <Button
-        render={<Link href="/login" />}
-        nativeButton={false}
-        onClick={closeOnClick ? () => setIsOpen(false) : undefined}
-        className="gap-2 bg-emerald-600 px-4 text-white shadow-sm hover:bg-emerald-700 focus-visible:border-emerald-500 focus-visible:ring-emerald-500/50"
-      >
-        <LogIn className="size-4" aria-hidden="true" />
-        Fazer login
-      </Button>
-    )}
-  </>
-);
+      {session ? (
+        <Link
+          href="/dashboard"
+          onClick={closeOnClick ? () => setIsOpen(false) : undefined}
+          className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:text-emerald-600"
+        >
+          <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-800">
+            {session.user.name || "Meu painel"}
+          </span>
+        </Link>
+      ) : (
+        <Button
+          render={<Link href="/login" />}
+          nativeButton={false}
+          onClick={closeOnClick ? () => setIsOpen(false) : undefined}
+          className="gap-2 bg-emerald-600 px-4 text-white shadow-sm hover:bg-emerald-700 focus-visible:border-emerald-500 focus-visible:ring-emerald-500/50"
+        >
+          <LogIn className="size-4" aria-hidden="true" />
+          Fazer login
+        </Button>
+      )}
+    </>
+  );
 
   return (
     <header className="fixed inset-x-0 top-0 z-40 border-b border-zinc-200 bg-white">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4 lg:px-8">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-6 py-4 lg:px-8">
         <Link
           href="/"
           aria-label="odontoPRO — Página inicial"
