@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Plan {
+  FREE
+  BASIC
+  PREMIUM
+}
+
+model Subscription {
+  id      String  @id @default(cuid())
+  status  Boolean @default(true)
+  plan    Plan
+  priceId String
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  address       String?
+  phone         String?
+  status        Boolean   @default(true)
+  timezone      String?
+  password      String? // Armazenar somente o hash; opcional para login via OAuth.
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  subscription Subscription?
+  services     Service[]
+  reminders    Reminder[]
+  appointments Appointment[]
+
+  accounts Account[]
+  sessions Session[]
+
+  authenticators Authenticator[]
+}
+
+model Appointment {
+  id              String   @id @default(uuid())
+  name            String //Nome do paciente
+  email           String //Email do paciente
+  phone           String //Telefone do paciente
+  appointmentDate DateTime //Data do agendamento
+  time            String //Hora do agendamento no fuso do usuário
+
+  serviceId String //ID do serviço agendado
+  // A chave composta garante que o serviço pertença ao usuário do agendamento.
+  service   Service @relation(fields: [serviceId, userId], references: [id, userId], onDelete: Restrict, onUpdate: Restrict)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, appointmentDate])
+  @@index([serviceId, userId])
+}
+
+model Reminder {
+  id          String @id @default(uuid())
+  description String
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Service {
+  id       String  @id @default(uuid())
+  name     String
+  price    Decimal @db.Decimal(10, 2)
+  duration Int //Duração em minutos
+  status   Boolean @default(true)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  appointments Appointment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([id, userId])
+  @@index([userId])
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@id([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+model Authenticator {
+  credentialId         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialId])
+}
