@@ -16,22 +16,23 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
+import { useSession } from "next-auth/react";
+import { handleRegister } from "../_actions/login";
+
 const navItems = [
   { name: "Sobre", href: "/about" },
   { name: "Serviços", href: "/services" },
   { name: "Contato", href: "/contact" },
 ];
 
-type HeaderProps = {
-  session?: {
-    user: {
-      name?: string | null;
-    };
-  } | null;
-};
+export default function Header() {
+  const { data: session, status } = useSession();
 
-export default function Header({ session = null }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
+
+  async function handleLogin() {
+    await handleRegister("github");
+  }
 
   const navLinks = (closeOnClick = false) => (
     <>
@@ -46,27 +47,27 @@ export default function Header({ session = null }: HeaderProps) {
         </Link>
       ))}
 
-      {session ? (
-        <Link
-          href="/dashboard"
-          onClick={closeOnClick ? () => setIsOpen(false) : undefined}
-          className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:text-emerald-600"
-        >
-          <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-800">
-            {session.user.name || "Meu painel"}
-          </span>
-        </Link>
-      ) : (
-        <Button
-          render={<Link href="/login" />}
-          nativeButton={false}
-          onClick={closeOnClick ? () => setIsOpen(false) : undefined}
-          className="gap-2 bg-emerald-600 px-4 text-white shadow-sm hover:bg-emerald-700 focus-visible:border-emerald-500 focus-visible:ring-emerald-500/50"
-        >
-          <LogIn className="size-4" aria-hidden="true" />
-          Fazer login
-        </Button>
-      )}
+      {status === 'loading' ? (
+        <></>
+      ) : session ? (
+            <Link
+              href="/dashboard"
+              onClick={closeOnClick ? () => setIsOpen(false) : undefined}
+              className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:text-emerald-600"
+            >
+              <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-800">
+                {session.user?.name || "Meu painel"}
+              </span>
+            </Link>
+          ) : (
+            <Button
+              onClick={handleLogin}
+              className="gap-2 bg-emerald-600 px-4 text-white shadow-sm hover:bg-emerald-700 focus-visible:border-emerald-500 focus-visible:ring-emerald-500/50"
+            >
+              <LogIn className="size-4" aria-hidden="true" />
+              Fazer login
+            </Button>
+        )}
     </>
   );
 
