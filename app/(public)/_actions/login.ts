@@ -1,10 +1,11 @@
-"use server"
+"use server";
 
-import { signIn } from "@/lib/auth"
+import { signIn } from "@/lib/auth";
 
+export async function handleRegister(provider: "github") {
+  if (provider !== "github") {
+    throw new Error("Provedor de autenticação inválido.");
+  }
 
-export async function handleRegister(provider: string) {
-
-  await signIn(provider, { redirectTo: "/dashboard" })
-
+  await signIn(provider, { redirectTo: "/dashboard" });
 }
