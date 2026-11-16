@@ -1,3 +1,7 @@
+import { ProfileContent } from "./_components/profile";
+
 export default function ProfilePage() {
-  return <h1>Perfil</h1>;
+  return (
+    <ProfileContent />
+  )
 }
