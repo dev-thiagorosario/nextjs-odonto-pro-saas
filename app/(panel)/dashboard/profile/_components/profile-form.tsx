@@ -1,30 +1,29 @@
-'use client'
+"use client";
 
-import { z } from 'zod'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { profileSchema, type ProfileFormData } from "./profile-schema";
+export type { ProfileFormData } from "./profile-schema";
 
-const profileSchema = z.object({
-  name: z.string().trim().min(1, { message: "O nome é obrigatório" }),
-  address: z.string().optional(),
-  phone: z.string().optional(),
-  status: z.enum(["Ativo", "Inativo"]),
-  timeZone: z.string().min(1, { message: "O fuso horário é obrigatório" }),
-  availableHours: z.array(z.string().regex(/^(?:0[89]|1[0-9]|2[0-3]):(?:00|30)$/))
-})
+interface UseProfileFormProps {
+  name: string | null;
+  address: string | null;
+  phone: string | null;
+  status: boolean;
+  timeZone: string | null;
+  availableHours: string[];
+}
 
-export type ProfileFormData = z.infer<typeof profileSchema>;
-
-export function useProfileForm() {
+export function useProfileForm(user: UseProfileFormProps) {
   return useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: "",
-      address: "",
-      phone: "",
-      status: "Ativo",
-      timeZone: "",
-      availableHours: []
-    }
-  })
+      name: user.name ?? "",
+      address: user.address ?? "",
+      phone: user.phone ?? "",
+      status: user.status ? "Ativo" : "Inativo",
+      timeZone: user.timeZone ?? "America/Bahia",
+      availableHours: user.availableHours,
+    },
+  });
 }

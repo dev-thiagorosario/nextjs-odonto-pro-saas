@@ -35,6 +35,7 @@ model User {
   address       String?
   phone         String?
   status        Boolean   @default(true)
+  availableHours String[] @default([])
   timezone      String?
   password      String? // Armazenar somente o hash; opcional para login via OAuth.
   createdAt     DateTime  @default(now())

@@ -1,8 +1,11 @@
 "use client"
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import Image from "next/image";
+import imgTest from "@/public/images/profile-test.png";
+import { onSubmit } from "./on-submit";
 import { useWatch } from "react-hook-form";
-import { ArrowRight, Building2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -18,7 +21,7 @@ import {
   DialogTitle,
   DialogTrigger
 } from "@/components/ui/dialog";
-import { Prisma } from "@/generated/prisma/client";
+import type { getUserData } from "../_data-access/get-info-user";
 
 const timeZones = [
   { value: "America/Noronha", label: "Fernando de Noronha" },
@@ -48,19 +51,21 @@ const timeSlots = generateTimeSlots();
 
 const selectClassName = "h-9 w-full rounded-lg border border-input bg-background px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive";
 
-type UserWWhitSubscription = Prisma.UserGetPayload <{
-  include: {
-    subscription: true
-  }
-}>
-
 interface ProfileContentProps {
-  user: UserWWhitSubscription
+  user: NonNullable<Awaited<ReturnType<typeof getUserData>>>;
 }
 
 export function ProfileContent({ user }: ProfileContentProps) {
-  const form = useProfileForm();
-  const [validated, setValidated] = useState(false);
+  const form = useProfileForm({
+    name: user.name,
+    address: user.address,
+    phone: user.phone,
+    status: user.status,
+    timeZone: user.timezone,
+    availableHours: user.availableHours,
+  });
+  const [message, setMessage] = useState("");
+  const [isPending, startTransition] = useTransition();
   const { errors } = form.formState;
   const selectedHours = useWatch({ control: form.control, name: "availableHours" });
 
@@ -71,15 +76,24 @@ export function ProfileContent({ user }: ProfileContentProps) {
       hours.includes(hour) ? hours.filter((value) => value !== hour) : [...hours, hour].sort(),
       { shouldDirty: true, shouldValidate: true },
     );
-    setValidated(false);
+    setMessage("");
   }
 
   return (
     <div className="mx-auto w-full max-w-2xl">
       <form
         noValidate
-        onChange={() => setValidated(false)}
-        onSubmit={form.handleSubmit(() => setValidated(true), () => setValidated(false))}
+        onChange={() => setMessage("")}
+        onSubmit={form.handleSubmit((values) => {
+          startTransition(async () => {
+            try {
+              const result = await onSubmit(values);
+              setMessage(result.message);
+            } catch {
+              setMessage("Não foi possível salvar o perfil. Tente novamente.");
+            }
+          });
+        }, () => setMessage(""))}
       >
         <Card>
           <CardHeader>
@@ -88,8 +102,8 @@ export function ProfileContent({ user }: ProfileContentProps) {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex justify-center">
-              <div className="flex h-32 w-32 items-center justify-center rounded-full bg-muted" role="img" aria-label="Clínica sem foto">
-                <Building2 className="h-12 w-12 text-muted-foreground" aria-hidden="true" />
+              <div className="relative h-32 w-32 overflow-hidden rounded-full bg-muted">
+                <Image src={user.image ? user.image : imgTest} alt="Foto da clínica" fill sizes="128px" className="object-cover" />
               </div>
             </div>
 
@@ -179,8 +193,8 @@ export function ProfileContent({ user }: ProfileContentProps) {
             </div>
 
             <div className="space-y-3">
-              <Button type="submit" disabled={form.formState.isSubmitting} className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 cursor-pointer">Salvar alterações</Button>
-              {validated && <p role="status" className="text-sm text-muted-foreground">Dados validados. O salvamento do perfil ainda não está disponível.</p>}
+              <Button type="submit" disabled={isPending} className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 cursor-pointer">{isPending ? "Salvando..." : "Salvar alterações"}</Button>
+              {message && <p role="status" className="text-sm text-muted-foreground">{message}</p>}
             </div>
           </CardContent>
         </Card>

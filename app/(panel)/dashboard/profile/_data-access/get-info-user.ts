@@ -10,6 +10,15 @@ interface GetUserDataProps{
 export async function getUserData({ userId }: GetUserDataProps){
   try{
     const user = await prisma.user.findUnique({
+      select: {
+        name: true,
+        address: true,
+        phone: true,
+        status: true,
+        timezone: true,
+        image: true,
+        availableHours: true,
+      },
       where: {
         id: userId
       }

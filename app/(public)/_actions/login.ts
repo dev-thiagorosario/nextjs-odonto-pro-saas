@@ -7,5 +7,5 @@ export async function handleRegister(provider: "github") {
     throw new Error("Provedor de autenticação inválido.");
   }
 
-  await signIn(provider, { redirectTo: "/dashboard" });
+  await signIn(provider, { redirectTo: "/dashboard/profile" });
 }
