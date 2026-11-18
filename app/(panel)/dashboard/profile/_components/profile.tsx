@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Image from "next/image";
 import imgTest from "@/public/images/profile-test.png";
-import { onSubmit } from "./on-submit";
+import { UpdateProfile } from "../_actions/update-profile";
 import { useWatch } from "react-hook-form";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -87,7 +87,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
         onSubmit={form.handleSubmit((values) => {
           startTransition(async () => {
             try {
-              const result = await onSubmit(values);
+              const result = await UpdateProfile(values);
               setMessage(result.message);
             } catch {
               setMessage("Não foi possível salvar o perfil. Tente novamente.");
