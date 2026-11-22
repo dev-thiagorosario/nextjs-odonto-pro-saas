@@ -16,7 +16,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-import { useSession } from "next-auth/react";
 import { handleRegister } from "../_actions/login";
 
 const navItems = [
@@ -25,9 +24,7 @@ const navItems = [
   { name: "Contato", href: "/contact" },
 ];
 
-export default function Header() {
-  const { data: session, status } = useSession();
-
+export default function Header({ accountLabel }: { accountLabel: string | null }) {
   const [isOpen, setIsOpen] = useState(false);
 
   async function handleLogin() {
@@ -47,16 +44,14 @@ export default function Header() {
         </Link>
       ))}
 
-      {status === 'loading' ? (
-        <></>
-      ) : session ? (
+      {accountLabel ? (
             <Link
               href="/dashboard"
               onClick={closeOnClick ? () => setIsOpen(false) : undefined}
               className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:text-emerald-600"
             >
               <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-800">
-                {session.user?.name || "Meu painel"}
+                {accountLabel}
               </span>
             </Link>
           ) : (
