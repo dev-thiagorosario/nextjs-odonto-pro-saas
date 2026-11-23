@@ -2,6 +2,7 @@ import { Footer } from "@/app/(public)/_components/footer";
 import Header from "@/app/(public)/_components/header";
 import { Hero } from "@/app/(public)/_components/hero";
 import { ProfessionalsCard } from "@/app/(public)/_components/professionals-card";
+import getSession from "@/lib/getSession";
 import type { ComponentProps } from "react";
 
 type Professional = ComponentProps<typeof ProfessionalsCard> & {
@@ -11,10 +12,13 @@ type Professional = ComponentProps<typeof ProfessionalsCard> & {
 // Substitua esta lista pelos dados retornados pela fonte de profissionais.
 const professionals: Professional[] = [];
 
-export default function Home() {
+export default async function Home() {
+  const session = await getSession();
+  const accountLabel = session?.user ? session.user.name || "Meu painel" : null;
+
   return (
     <>
-      <Header />
+      <Header accountLabel={accountLabel} />
       <main className="pt-20">
         <Hero />
 

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { LogoutButton } from "./logout-button";
 import { useProfileForm } from "./profile-form";
 import {
   Dialog,
@@ -80,7 +81,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl">
+    <div className="mx-auto w-full max-w-2xl space-y-4">
       <form
         noValidate
         onChange={() => setMessage("")}
@@ -199,6 +200,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
           </CardContent>
         </Card>
       </form>
+      <LogoutButton />
     </div>
   );
 }
