@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { LogIn, Menu } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Sheet,
   SheetClose,
@@ -16,8 +16,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-import { handleRegister } from "../_actions/login";
-
 const navItems = [
   { name: "Sobre", href: "/about" },
   { name: "Serviços", href: "/services" },
@@ -26,10 +24,6 @@ const navItems = [
 
 export default function Header({ accountLabel }: { accountLabel: string | null }) {
   const [isOpen, setIsOpen] = useState(false);
-
-  async function handleLogin() {
-    await handleRegister("github");
-  }
 
   const navLinks = (closeOnClick = false) => (
     <>
@@ -55,13 +49,14 @@ export default function Header({ accountLabel }: { accountLabel: string | null }
               </span>
             </Link>
           ) : (
-            <Button
-              onClick={handleLogin}
-              className="gap-2 bg-emerald-600 px-4 text-white shadow-sm hover:bg-emerald-700 focus-visible:border-emerald-500 focus-visible:ring-emerald-500/50"
+            <Link
+              href="/login"
+              onClick={closeOnClick ? () => setIsOpen(false) : undefined}
+              className={buttonVariants({ className: "gap-2 bg-emerald-700 px-4 text-white shadow-sm hover:bg-emerald-800 focus-visible:border-emerald-500 focus-visible:ring-emerald-500/50" })}
             >
               <LogIn className="size-4" aria-hidden="true" />
               Fazer login
-            </Button>
+            </Link>
         )}
     </>
   );

@@ -7,6 +7,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
   adapter: PrismaAdapter(prisma),
   trustHost: true,
+  pages: {
+    signIn: "/login",
+    error: "/login",
+  },
   callbacks: {
     session({ session, user }) {
       session.user.id = user.id;
